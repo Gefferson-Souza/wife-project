@@ -5,7 +5,7 @@ const produtoSchema = new mongoose.Schema({
     descricao: String,
     categoria: {type: String, required: true},
     preco: {type: Number, required: true},
-    img: Buffer
+    imagem: Buffer
 })
 
 produtoSchema.set('toJSON', {

@@ -19,7 +19,7 @@ mongoose
     console.error(error.message);
   });
 
-app.use(cors);
+app.use(cors());
 app.use(express.json())
 app.use(middleware.morganLogger);
 app.use('/produto', produtoRouter)
