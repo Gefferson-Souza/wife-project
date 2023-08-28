@@ -1,22 +1,40 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const compraSchema = new mongoose.Schema({
-    cliente: {type: mongoose.Schema.Types.ObjectId, ref:"ClienteModel"},
-    produtos:[
-        {
-            produto:{type: mongoose.Schema.Types.ObjectId, ref:"ProdutoModel"},
-            precoVenda:Number,
-        },
-    ],
-    data:{type: Date, default: Date.now},
+  clienteId: { type: mongoose.Schema.Types.ObjectId, ref: "ClienteModel" },
+  produtos: [
+    {
+      produto: { type: mongoose.Schema.Types.ObjectId, ref: "ProdutoModel" },
+      precoVenda: Number,
+    },
+  ],
+  valorTotal: Number,
+  aVista: Number,
+  aPrazo: Number,
+  data: {
+    type: String,
+    default: () =>
+      new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+  },
 });
 
-compraSchema.set('toJSON',{
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString();
-        delete returnedObject._id;
-        delete returnedObject.__v;
-    }
-})
+compraSchema.pre("save", function (next) {
+  const valorTotal = this.produtos.reduce(
+    (total, produto) => total + produto.precoVenda,
+    0
+  );
+  this.valorTotal = valorTotal;
+  let valorPrazo = valorTotal - this.aVista;
+  this.aPrazo = valorPrazo;
+  next();
+});
 
-module.exports = mongoose.model('CompraModel', compraSchema);
+compraSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+
+module.exports = mongoose.model("CompraModel", compraSchema);

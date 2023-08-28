@@ -3,6 +3,7 @@ const ClienteModel = require("../models/cliente");
 const multer = require("multer");
 const fs = require("fs").promises;
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/clientes/");

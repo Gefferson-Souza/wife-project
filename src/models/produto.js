@@ -17,4 +17,4 @@ produtoSchema.set('toJSON', {
     }
 })
 
-module.exports = mongoose.model('ProdutoModel', produtoSchema);
+module.exports = mongoose.model("ProdutoModel", produtoSchema);

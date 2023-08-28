@@ -2,6 +2,7 @@ const produtoRouter = require("express").Router();
 const ProdutoModel = require("../models/produto");
 const multer = require("multer");
 const fs = require("fs").promises;
+const userExtractor = require('../utils/middleware').userExtractor;
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -16,7 +17,7 @@ const upload = multer({ storage: storage });
 
 produtoRouter.get("/", async (req, res, next) => {
   try {
-    const produtosInDb = await ProdutoModel.find({});
+    const produtosInDb = await ProdutoModel.find({disponivel: true});
     return res.status(200).json(produtosInDb);
   } catch (err) {
     next(err);
@@ -32,7 +33,7 @@ produtoRouter.get("/:id", async (req,res,next) => {
   }
 })
 
-produtoRouter.post("/", upload.single("imagem", 5), async (req, res, next) => {
+produtoRouter.post("/",userExtractor, upload.single("imagem", 5), async (req, res, next) => {
   try {
     const { nome, descricao, categoria, preco } = req.body;
     const imagem = req.files
@@ -56,7 +57,8 @@ produtoRouter.post("/", upload.single("imagem", 5), async (req, res, next) => {
   }
 });
 
-produtoRouter.delete("/:id", async (req, res, next) => {
+
+produtoRouter.delete("/:id",userExtractor, async (req, res, next) => {
   try {
     const id = req.params.id;
     const produto = await ProdutoModel.findById(id);
@@ -82,7 +84,7 @@ produtoRouter.delete("/:id", async (req, res, next) => {
   }
 });
 
-produtoRouter.put("/:id", upload.single("imagem"), async (req, res, next) => {
+produtoRouter.put("/:id",userExtractor, upload.single("imagem"), async (req, res, next) => {
   try {
     const { nome, categoria, descricao, preco } = req.body;
     let imagem = req.file ? req.file.path : undefined;
