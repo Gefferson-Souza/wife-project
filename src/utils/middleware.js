@@ -1,8 +1,10 @@
-const morgan = require("morgan");
+import morgan from "morgan";
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+
+dotenv.config();
+
 const morganLogger = morgan("dev");
-require('dotenv').config();
-const UserModel = require('../models/user');
-const jwt = require('jsonwebtoken');
 
 const unkownEndpoint = (req, res, next) => {
   res.status(404).json({
@@ -21,68 +23,26 @@ const errorHandler = (err, req, res, next) => {
   next(err);
 };
 
-const tokenExtractor = (req, res, next) =>{
-  try{
+const tokenExtractor = (req, res, next) => {
+  try {
     const authorization = req.get('authorization');
 
-    if(authorization && authorization.startsWith('Bearer ', '')){
+    if (authorization && authorization.startsWith('Bearer ', '')) {
       const token = authorization.replace('Bearer ', '');
       req.token = token;
-    }else {
+    } else {
       req.token = null;
     }
     next();
-  }catch(err){
+  } catch (err) {
     next(err)
   }
 }
 
-const userExtractor = async (req, res, next) => {
-  try{
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
-    if(!decodedToken.id){
-      return res.status(401).json({
-        error: "Token inválido"
-      })
-    }
-    const user = await UserModel.findById(decodedToken.id);
-    if(user){
-      req.user = user;
-    }else{
-      req.user = null
-    }
-
-    const horarioAtual = Math.floor(new Date().getTime() / 1000);
-    
-    const expiracaoToken = decodedToken.exp;
-    console.log(expiracaoToken - horarioAtual)
-
-    if(expiracaoToken - horarioAtual <= 600){
-      const novoToken = jwt.sign(
-        {
-          usuario: decodedToken.usuario,
-          id: decodedToken.id
-        },
-        process.env.SECRET,
-        {expiresIn: '30m'}
-      )
-      req.token = novoToken;
-    }
-
-    console.log(req.token)
-
-    next();
-  }catch(err){
-    next(err);
-  }
-}
-
-
-module.exports = {
-    morganLogger,
-    unkownEndpoint,
-    errorHandler,
-    tokenExtractor,
-    userExtractor
+export {
+  morganLogger,
+  unkownEndpoint,
+  errorHandler,
+  tokenExtractor,
 }

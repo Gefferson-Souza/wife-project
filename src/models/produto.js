@@ -1,20 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const produtoSchema = new mongoose.Schema({
     nome: {type: String, required: true},
-    descricao: String,
     categoria: {type: String, required: true},
-    preco: {type: Number, required: true},
+    quantidade: {type: Number, required: true},
+    descricao: String,
+    valorCompra: {type: Number, required: true},
+    valorVenda: {type: Number, required: true},
     imagem: String,
     disponivel: {type: Boolean, default: true},
 })
 
-produtoSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString();
-        delete returnedObject._id;
-        delete returnedObject.__v;
-    }
-})
-
-module.exports = mongoose.model("ProdutoModel", produtoSchema);
+export default mongoose.model("ProdutoModel", produtoSchema);
