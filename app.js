@@ -22,7 +22,11 @@ mongoose
   .catch((error) => {
     console.error(error.message);
   });
+// Para JSON payloads
+app.use(express.json({ limit: '50mb' }));
 
+// Para FormData payloads (uploads de arquivos)
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 app.use(express.json());
 app.use(morganLogger);

@@ -65,7 +65,7 @@ class ProdutoController {
       });
 
       const imageUrls = await Promise.all(uploadPromises);
-
+      
 
       body.imagens = imageUrls;
       const produto = new ProdutoModel(body);
