@@ -12,6 +12,13 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4'
 });
 
+function ensureHttps(url) {
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+  }
+  return url;
+}
+
 class ProdutoController {
   async index(req, res, next) {
     try {
@@ -64,8 +71,10 @@ class ProdutoController {
         return upload.Location;
       });
 
-      const imageUrls = await Promise.all(uploadPromises);
-      
+      const urls = await Promise.all(uploadPromises);
+
+      const imageUrls = urls.map(url => ensureHttps(url));
+
 
       body.imagens = imageUrls;
       const produto = new ProdutoModel(body);
