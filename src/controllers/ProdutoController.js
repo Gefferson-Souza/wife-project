@@ -3,9 +3,12 @@ import ProdutoModel from "../models/produto.js";
 class ProdutoController {
   async index(req, res, next) {
     try {
-      const produtos = await ProdutoModel.find({ disponivel: true });
+      const produtos = await ProdutoModel.aggregate([
+        { $match: { disponivel: true } },
+        { $group: { _id: "$tipo", produtos: { $push: "$$ROOT" } } }
+      ]);
 
-      res.status(200).json({
+      return res.status(200).json({
         data: produtos,
         message: "Produto encontrado com sucesso!",
       });
@@ -19,7 +22,7 @@ class ProdutoController {
       const { productId } = req.params;
       const produto = await ProdutoModel.findById(productId);
 
-      res.status(200).json({
+      return res.status(200).json({
         data: produto,
         message: "Produto encontrado com sucesso!",
       });
@@ -33,7 +36,7 @@ class ProdutoController {
       const produto = new ProdutoModel(req.body);
       const newProduto = await produto.save();
 
-      res.status(201).json({
+      return res.status(201).json({
         data: newProduto,
         message: "Produto adicionado com sucesso!",
       });

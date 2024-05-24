@@ -27,7 +27,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morganLogger);
 app.use(tokenExtractor);
-app.use('/api/produtos', ProdutoRouter);
+app.use('/api/products', ProdutoRouter);
 app.use(unkownEndpoint);
 app.use(errorHandler);
 
