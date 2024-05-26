@@ -1,7 +1,6 @@
 import ProdutoModel from "../models/produto.js";
 import AWS from 'aws-sdk';
-import fs from 'fs';
-import path from 'path';
+import sharp from 'sharp'
 
 // Configuração do AWS S3
 const s3 = new AWS.S3({
@@ -24,7 +23,8 @@ class ProdutoController {
     try {
       const produtos = await ProdutoModel.aggregate([
         { $match: { disponivel: true } },
-        { $group: { _id: "$tipo", produtos: { $push: "$$ROOT" } } }
+        { $group: { _id: "$tipo", produtos: { $push: "$$ROOT" } } },
+        { $sort: { _id: 1 }}
       ]);
 
       return res.status(200).json({
@@ -58,12 +58,22 @@ class ProdutoController {
 
       const uploadPromises = body.imagens.map(async (imagem, index) => {
         const fileContent = Buffer.from(imagem.webviewPath.split(",")[1], 'base64');
+
+        // Processamento da imagem com Sharp
+        const processedImageBuffer = await sharp(fileContent)
+        .resize(1600, null, { // Redimensiona para no máximo 1600px no lado maior
+          fit: 'inside',
+          withoutEnlargement: true 
+        })
+        .webp({ quality: 80 })
+        .toBuffer();
+
         const params = {
           Bucket: `products/${body.tipo}`,
-          Key: `${body.nome}${Date.now()}-${index}.jpeg`, // Nome do arquivo no Spaces
-          Body: fileContent,
+          Key: `${body.nome}${Date.now()}-${index}.webp`, // Nome do arquivo no Spaces
+          Body: processedImageBuffer,
           ACL: 'public-read', // Torna o arquivo acessível publicamente
-          ContentType: 'image/jpeg' // Define o tipo de conteúdo do arquivo
+          ContentType: 'image/webp' // Define o tipo de conteúdo do arquivo
         };
 
         const upload = await s3.upload(params).promise();
