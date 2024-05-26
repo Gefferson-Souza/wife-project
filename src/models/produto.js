@@ -10,6 +10,7 @@ const produtoSchema = new mongoose.Schema({
     valorVenda: { type: Number, required: true },
     imagens: [{ type: String }],
     thumbnail: { type: String },
+    suggestedPrice: { type: Number },
     disponivel: { type: Boolean, default: true },
 })
 
