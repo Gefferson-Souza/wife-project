@@ -9,6 +9,7 @@ const produtoSchema = new mongoose.Schema({
     valorCompra: { type: Number, required: true },
     valorVenda: { type: Number, required: true },
     imagens: [{ type: String }],
+    thumbnail: { type: String },
     disponivel: { type: Boolean, default: true },
 })
 
