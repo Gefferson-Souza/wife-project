@@ -115,9 +115,12 @@ class ProdutoController {
     try {
       const { body } = req;
 
-      if (!body.imagens || body.imagens.length === 0) {
+      if (body.imagens && body.imagens.length > 0) {
         body.thumbnail = await uploadThumbnail(body.imagens[0], body.tipo, body.nome);
         body.imagens = await uploadImages(body.imagens, body.tipo, body.nome);
+      } else {
+        body.thumbnail = 'https://placehold.co/600x400?text=Sem+Imagem';
+        body.imagens = ['https://placehold.co/600x400?text=Sem+Imagem'];
       }
 
       const produto = new ProdutoModel(body);
@@ -168,6 +171,21 @@ class ProdutoController {
 
       return res.status(200).json({
         message: "Script executado com sucesso!",
+        status: 'OK',
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteProduct(req, res, next) {
+    try {
+      const { productId } = req.params;
+      const produto = await ProdutoModel.findByIdAndDelete(productId);
+
+      return res.status(200).json({
+        data: produto,
+        message: "Produto deletado com sucesso!",
         status: 'OK',
       });
     } catch (err) {
